@@ -1,11 +1,13 @@
 <?php
+	include 'services/EchoServiceResponse.php';
+
 
     $serviceName = Util::getParams('service');
     $callback = Util::getParams('callback');
     $format = Util::getParams('format');
 
     $factory = new ServiceFactory();
-    $serviceResponse = $factory->getService($serviceName)->perform();
+    $serviceResponse = $factory->create($serviceName);
     $output = new Output($serviceResponse, $format, $callback);
     $output->echoResponse();
 ?>
@@ -13,11 +15,26 @@
 <?php
     class ServiceFactory {
         const USER_SERVICE = "UserService";
-        $errors = new Errors();
-       
+        private $err;
+        
+        public function __construct(){
+          $this->err = new Errors();
+        }
+        
         public function create($serviceName){
-            $service = this->getService($serviceName);
-            $service->
+            $service = $this->getService($serviceName);
+            
+            if ($service === null) {
+		    	return $this->err;
+			}
+
+			//apply validation from individual service
+            $service->validate($this->err);
+            if($this->err->hasError()){
+              	return $this->err;
+            }
+            
+            return $service->perform($this->err);
         }
        
         public  function getService($serviceName){
@@ -25,9 +42,14 @@
                 case "UserService":
                     return new UserService();
                     break;
+                case "EchoService":
+                	return new EchoService();
+                	break;
             }
            
-            $this->addError("Service not found: ".$serviceName);           
+            $this->err->addError("Service not found".$serviceName);
+            //$this->err->addError("Mandatory input are: format={json|xml}, service={".$serviceName."}"); 
+            return null;
         }
     }
 ?>
@@ -38,17 +60,17 @@
         public $errors;
        
         public function __construct(){
-          $errors = array();
+          $this->errors = array();
         }
        
-        public function addError($error){
-            array_push($this->errors, $error);
+        public function addError($errorMsg){
+            array_push($this->errors, $errorMsg);
         }
-       
-        public function getErrors($errors){
-            return $this->errors;
+        
+        public function getErrors(){
+        	return serialize($this->errors);
         }
-       
+        
         public function hasError(){
             if (sizeof($this->errors) > 0) {
                 return true;
@@ -69,7 +91,7 @@
    
 
    
-    class UserService extends Service{
+    class UserService extends Service {
         public function validate($errors){
             return true;
         }
@@ -99,6 +121,7 @@
         }
     }
 ?>
+
 
 <?php
     class Output {
@@ -215,7 +238,7 @@
 
             foreach ($array as $k => $v) {
                 if (is_array($v)) { //nested array
-                    arrayToXml($v, $k, $_xml->addChild($k));
+                    XMLSerializer::arrayToXml($v, $k, $_xml->addChild($k));
                 }
                 else {
                     $_xml->addChild($k, $v);
