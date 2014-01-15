@@ -1,6 +1,7 @@
 <?php
+    include 'services/Service.php';
     include 'services/EchoServiceResponse.php';
-
+    include 'services/IpService.php';
 
     $serviceName = Util::getParams('service');
     $callback = Util::getParams('callback');
@@ -45,6 +46,9 @@
                 case "EchoService":
                 	return new EchoService();
                 	break;
+                case "IpService":
+                	return new IpService();
+                	break;
             }
            
             $this->err->addError("Service not found".$serviceName);
@@ -84,10 +88,10 @@
     //    public function perform();
     //}
    
-    abstract class Service {
-        abstract public function validate($errors);
-        abstract public function perform($errors);
-    }
+    //abstract class Service {
+    //    abstract public function validate($errors);
+    //    abstract public function perform($errors);
+    //}
    
 
    
