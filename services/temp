@@ -1,0 +1,37 @@
+class MessageFactory {
+  
+}
+
+class ListenersFactory {
+  
+}
+
+class Message{
+  private $user_id
+  private $msg_type; //image|text|audio|video
+  private $privacy_level; //private|public|protected
+  private $timestamp;
+  private $msg;
+  
+  public function __construct($user_id, $msg_type, $privacy_level, $timestamp, $msg){
+	$this->user_id = $user_id;
+	$this->msg_type = $msg_type;
+	$this->privacy_level = $privacy_level;
+	this->timestamp = $timestamp;
+	$this->msg = $msg;
+  }
+}
+
+class MessageListeners{
+  private $sender_id; 
+  private $listener_ids;
+  
+  public function __construct($sender_id, $listener_ids){
+	$this->sender_id = $sender_id;
+	$this->listener_ids = $listener_ids;
+  }
+  
+  public function persist(){
+  
+  } 
+}
