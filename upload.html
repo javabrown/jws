@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title class="title"></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta HTTP-EQUIV='content-type' CONTENT='text/html; charset=utf-8'>
+		<script type='text/javascript' src='http://cms.javabrown.com/files/js/jquery.1.7.2.min.js'></script>
+		<script type="text/javascript" src="http://cms.javabrown.com/files/js/bootstrap-collapse.js"></script>
+		<script type="text/javascript" src="http://cms.javabrown.com/files/js/bootstrap-modal.js"></script>
+		<script type="text/javascript" src="http://cms.javabrown.com/files/js/bootstrap-modalmanager.js"></script>
+		<script type="text/javascript" src="http://cms.javabrown.com/files/js/bootstrap-carousel.js"></script>
+ 		<link href="http://cms.javabrown.com/files/css/bootstrap.css" rel="stylesheet"/>
+ 		 
+ 
+ 		
+		<style>
+			body
+			{
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+			}
+			textarea { resize: both; }
+			.opac
+			{
+			filter:alpha(opacity=50); opacity:0.9;
+			}
+			h1 {font-size:450%}
+			h2 {font-size:350%}
+			h3 {font-size:250%}
+			.active{color:red;}
+			.center{text-align:center;}
+			.after-menu-pad{padding-top:10px;}
+			.hide {display:none}
+			.right{text-align: right;}
+			.left{text-align: left;}
+			.center{text-align: center;}
+			#log {
+				width: 100% !important;
+				height: 50px !important;
+				max-height: 70px !important;
+			}
+			#myCanvas {
+				width: 100% !important;
+				height: 400px !important;
+				max-width: 900px !important;
+				max-height: 600px !important;
+			}
+			
+			.msg{
+			  font-size:100%;
+			  color:black;
+			  text-align:center;
+			  text-align: left;
+			  padding:10px;
+			  border-bottom: dotted;
+			  border-width:1px;
+			}
+			div.scroll
+			{
+				//background-color:#00FFFF;
+				//width:100px;
+				height:300px;
+				overflow:scroll;
+			}
+
+			div.hidden 
+			{
+				overflow:hidden;
+			}	
+			div.connect
+            {
+              background-image:url("http://osx.wdfiles.com/local--files/icon:screen-shot-2011-07-28-at-10-15-39/Screen-shot-2011-07-28-at-10-15-39.png");
+              background-repeat:no-repeat;
+              background-position:right bottom;
+            }
+			div.disconnect
+            {
+              background-image:url("http://www.thinkpond.net/content/uploads/2013/09/Network-Drive-Offline.png");
+              background-repeat:no-repeat;
+              background-position:right bottom;
+            }		 
+		</style>
+ 
+		
+	</head>
+	
+		
+		 
+
+			
+	
+	<body>
+<!--div class="container"> <nav class="navbar navbar-inverse" role="navigation"> <button type="button" class="btn btn-default navbar-btn" id='start' onclick="jBrownCast.start();$('#start').hide();$('#stop').show();">Connect</button> <button type="button" class="btn btn-default navbar-btn" id='stop' onclick="jBrownCast.stop();$('#start').show();$('#stop').hide();$('#log').text('');" style="display:none" mce_style="display:none">Disconnect</button> </nav -->
+<div id="abody" class="row show-grid opac after-menu-pad" style="padding-button:20%;">
+<h1><span class="label1 label-info1 site-name"> </span></h1>
+</div>
+<p>&nbsp;</p>
+<div class="row show-grid opac" style="width: auto; height: auto%;">
+<div id="main-content" class="well col-sm-12"><!-- *********PAGE CONTENT DEF AREA BEGIN******** -->
+<div id="home-page-content">
+<div class="row show-grid container">
+<div class="col-sm-9 panel"><!-- center-content begin -->
+<div id="main-panel" class="panel">
+<div id="main-sub-panel" class="scroll incomming-msg"><!--div class='msg'>xxxxxxxxxx</div --></div>
+<div class="panel-footer"><textarea id="log" class="input_msg" style="resize: both;" cols="50" rows="3"></textarea></div>
+<div class="panel-footer"><button id="add" class="btn" onclick="jBrownMsg.pushMsg();">Send</button> <input id="uploadimage" class="btn" name="img" size="65" type="file" /> 
+<hr />
+<!-- The data encoding type, enctype, MUST be specified as below --> <form action="http://cms.javabrown.com/jws/uploader.php" enctype="multipart/form-data" method="POST"> <!-- MAX_FILE_SIZE must precede the file input field --> <input name="MAX_FILE_SIZE" type="hidden" value="30000" /> <!-- Name of input element determines name in $_FILES array --> Send this file: <input name="ufile" type="file" /><input name="ip" type="hidden" value="192.2.2.2" /> <input type="submit" value="Send File" /> </form> 
+<hr />
+</div>
+</div>
+</div>
+<!-- center-content end --> <!-- space --></div>
+</div>
+<!-- *********PAGE CONTENT DEF AREA END******** --></div>
+</div>
+</body>
+	
+	    <script>
+			function readImage(input) {
+			    if ( input.files && input.files[0] ) {
+			        var FR= new FileReader();
+			        FR.onload = function(e) {
+			             alert("stated");
+			             //jBrownMsg.pushImageMsg(e.target.result);
+			             try{
+			              var mimeType = e.target.result.split(",")[0].split(":")[1].split(";")[0];
+                          alert(mimeType);
+                          blob = dataURItoBlob(e.target.result,mimeType);alert(blob);
+                          jBrownMsg.pushImageMsg(blob);
+                         }catch(e){console.log(e);}
+
+			             //$("#bin-data").html(base64_encode(e.target.result));
+ 			             alert("end");
+			        };       
+			        FR.readAsDataURL( input.files[0] );
+			    }
+			}
+			
+//-----			
+var imageLoader = document.getElementById('uploadimage');
+    imageLoader.addEventListener('change', handleImage, false);
+var canvas = document.getElementById('bin-data');
+var ctx = canvas.getContext('2d');
+			
+function handleImage(e){
+    var reader = new FileReader();
+    reader.onload = function(event){
+        var img = new Image();
+        img.onload = function(){
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img,0,0);
+            
+            var dataURL = canvas.toDataURL("image/png");
+            dataURL = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+            
+            jBrownMsg.pushImageMsg(JSON.stringify(dataURL));
+        }
+        img.src = event.target.result;
+    }
+    reader.readAsDataURL(e.target.files[0]);     
+}
+//--------
+			
+		 
+			
+	    </script>
+
+		<!-- JBrown Cast -->
+		<script>
+		    var jBrownUtil = {
+		       getTimeStamp : function(){
+		         var d = new Date();
+		         var stamp = d.getHours()+"-"+d.getMinutes()+"-"+d.getSeconds();
+	             return stamp;
+		       }
+		    }
+		    
+			var jBrownMsg = {
+			    __fetchTimer : '',
+			    __client_key : '',
+			    startFetcher: function(){
+			      __fetchTimer = setInterval(this.fetchMsg, 3000);
+			    },
+			    
+			    connect: function(){
+			       var email = $("#user").val();
+			       var password = $("#password").val();
+			        var input = {
+							"email" : email,
+							"password" : password
+			        };			       
+			       $.post('http://cms.javabrown.com/jws/ws.php?service=authservice&callback=?', input, function(response) {
+    					// Do something with the request
+						
+						$(".incomming-msg").attr('client_key', response["client_key"]);
+					    
+						__client_key = $(".incomming-msg").attr('client_key');
+						if(__client_key != ''){
+						   jBrownMsg.startFetcher();
+						   $('#start').hide();
+						   $('#stop').show();
+						   $(".incomming-msg").addClass('connect');
+						}
+						else{
+						  alert("Invalid login!!");
+						}
+					}, 'json');
+			    },
+			    
+			    disconnect: function(){
+			       var input = {};	
+			       $.post('http://cms.javabrown.com/jws/ws.php?service=signoutservice&callback=?', input, function(response) {
+    					// Do something with the request
+						__client_key = '';
+						jBrownMsg.stopFetcher();
+						$('#start').show();
+						$('#stop').hide();
+						$(".incomming-msg").html('');
+						$(".incomming-msg").addClass('disconnect');
+						
+					}, 'json');
+			    },	
+			    		    
+			    fetchMsg: function(){
+			        var input = {
+							"client_key":__client_key,
+							"store_name" : "store-71",
+							"store_action" : "fetch_all"
+			        };
+			      	$.post('http://cms.javabrown.com/jws/ws.php?service=storageservice&callback=?', input, function(response) {
+    					// Do something with the request
+    					var data = response['store_data'];
+						jQuery.each(data, function(i, val) {
+						    var msg = val['message'];
+						    if(val['msg_type'] =='msg_image'){
+						       msg = "<img src='"+ msg +"' class='img-thumbnail'></img>";
+						    }
+						    $('.incomming-msg').prepend("<div class='msg'>"+ msg +"</div>");
+						});
+    					
+					}, 'json');
+			    },
+			    pushMsg: function(){
+			        var msg = $(".input_msg").val();
+			        var timestamp = jBrownUtil.getTimeStamp();
+			        
+			        var input = {
+							"client_key":__client_key,
+							"store_name" : timestamp,
+							"store_data" : msg,
+							"message_type" : "msg_text",
+							"store_action" : "push"
+			        };
+			      	$.post('http://cms.javabrown.com/jws/ws.php?service=storageservice&callback=?', input, function(response) {
+    					// Do something with the request
+    					var data = response['store_data'];
+					 
+    					
+					}, 'json');
+			    },
+			    pushImageMsg: function(msg){
+			        //var msg = $("#bin-data").html();
+			        alert("==> "+msg);
+			        var timestamp = jBrownUtil.getTimeStamp();
+			        
+			        var input = {
+							"client_key":__client_key,
+							"store_name" : timestamp,
+							"message_type" : "msg_image",							
+							"store_data" : msg,
+							"store_action" : "push"
+			        };
+			      	$.post('http://cms.javabrown.com/jws/ws.php?service=storageservice&callback=?', input, function(response) {
+    					// Do something with the request
+    					var data = response['store_data'];
+					    alert(JSON.stringify(data));
+    					
+					}, 'json');
+			    },			    		    
+				stopFetcher: function(){
+					clearInterval(__fetchTimer);
+					alert('Msg fechter stopped!!');
+				}
+			};
+            
+		</script>
+		
+</html>

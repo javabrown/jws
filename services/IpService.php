@@ -15,7 +15,7 @@
        
         public function __construct(){
           $this->external_ip = $_SERVER['REMOTE_ADDR'];
-          $this->request_ip = "--";//$_SERVER['HTTP_X_FORWARDED_FOR'];
+          $this->request_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
     }
 ?>

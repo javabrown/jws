@@ -1,12 +1,32 @@
 <?php
+    include 'services/util/Util.php';
+    include 'services/util/CacheUtil.php';
+    include 'services/util/Errors.php';
+    include 'services/util/Session.php';
+    include 'services/model/UserInfo.php';
+    include 'services/providers/DbProvider.php';
+ 
     include 'services/Service.php';
     include 'services/EchoServiceResponse.php';
     include 'services/IpService.php';
+    include 'services/AuthService.php';
+    include 'services/CreateUserService.php';
+    include 'services/SignoutService.php';
+    include 'services/StorageService.php';
+    include 'services/UploadService.php';
+    include 'services/UploadCommitService.php';
 
-    $serviceName = Util::getParams('service');
-    $callback = Util::getParams('callback');
-    $format = Util::getParams('format');
-
+    $serviceName = Util::getJsonParams('service');
+    $callback = Util::getJsonParams('callback');
+    $format = Util::getJsonParams('format');
+ 
+	 
+        ob_start();
+        var_dump( $serviceName);
+        var_dump( Util::getJsonParams('store_action') );
+	$log  = ob_get_clean();
+        error_log( "JWS==> ". $_SERVER['REQUEST_METHOD'] ."===[". $log ." ]");
+	 
     $factory = new ServiceFactory();
     $serviceResponse = $factory->create($serviceName);
     $output = new Output($serviceResponse, $format, $callback);
@@ -14,7 +34,60 @@
 ?>
 
 <?php
-    class ServiceFactory {
+
+    abstract class ServiceDirectory{
+
+        public function getServiceList(){
+			$serviceList = array(
+				"EchoService", //=> "Test Service User",
+				"IpService", //=> "Return External Ip Address of Client",
+				"AuthService", //=> "Return External Ip Address of Client"
+				"CreateUserService", //=> "Create User from Posted Input"
+				"SignoutService", //=> "Create User from Posted Input"
+				"StorageService", //=> "Create User from Posted Input"
+				"UploadService", //=> "Create User from Posted Input"
+				"UploadCommitService", //=> "Create User from Posted Input"
+			);
+			
+			return $serviceList;
+        }
+
+        public  function getService($serviceName){
+             if ($serviceName!= null && $serviceName!= '') {
+                $serviceName = strtolower($serviceName);
+             }
+
+            switch($serviceName){
+                case "authservice":
+                    return new AuthService();
+                    break;
+                case "echoservice":
+                	return new EchoService();
+                	break;
+                case "ipservice":
+                	return new IpService();
+                	break;
+                case "createuserservice":
+                	return new CreateUserService();
+                	break;
+                case "signoutservice":
+                	return new SignoutService();
+                	break;
+                case "storageservice":
+                	return new StorageService();
+                	break;
+                case "uploadservice":
+                	return new UploadService();
+                	break;
+                case "uploadcommitservice":
+                	return new UploadCommitService();
+                	break;
+            }
+            return null;
+        }
+    }
+
+    class ServiceFactory  extends ServiceDirectory {
         const USER_SERVICE = "UserService";
         private $err;
         
@@ -24,43 +97,32 @@
         
         public function create($serviceName){
             $service = $this->getService($serviceName);
-            
+
             if ($service === null) {
-		    	return $this->err;
+			    if (Util::is_invalid_post_json()){
+				  $this->err->addError("Input POST request, pls validate your JSON Input");
+				  return $this->err;
+				}
+                $this->err->addError("Service not found");
+				$this->err->addError("Valid services are:". implode(",", $this->getServiceList()) );
+				return $this->err;
 			}
 
 			//apply validation from individual service
             $service->validate($this->err);
+			
             if($this->err->hasError()){
-              	return $this->err;
+                return $this->err;
             }
             
             return $service->perform($this->err);
-        }
-       
-        public  function getService($serviceName){
-            switch($serviceName){
-                case "UserService":
-                    return new UserService();
-                    break;
-                case "EchoService":
-                	return new EchoService();
-                	break;
-                case "IpService":
-                	return new IpService();
-                	break;
-            }
-           
-            $this->err->addError("Service not found".$serviceName);
-            //$this->err->addError("Mandatory input are: format={json|xml}, service={".$serviceName."}"); 
-            return null;
         }
     }
 ?>
 
 
 <?php
-    class Errors  {
+ /*   class Errors  {
         public $errors;
        
         public function __construct(){
@@ -81,49 +143,7 @@
             }
             return false;
         }
-    }
-   
-    //interface ServiceI {
-    //    public function validate();
-    //    public function perform();
-    //}
-   
-    //abstract class Service {
-    //    abstract public function validate($errors);
-    //    abstract public function perform($errors);
-    //}
-   
-
-   
-    class UserService extends Service {
-        public function validate($errors){
-            return true;
-        }
-       
-        public function perform($errors) {
-            return new UserServiceResponse('Raja Khan', 'Programmer');
-        }
-    }
-   
-    class UserServiceResponse {
-        public $name;
-        public $role;
-       
-        public function __construct($name, $role){
-          $this->name = $name;
-          $this->role = $role;
-        }
-         
-        function getParsableData(){
-            $var = get_object_vars($this);
-            foreach($var as &$value){
-              if(is_object($value) && method_exists($value,'getParsableData')){
-                  $value = $value->getJsonData();
-              }
-            }
-            return $var;
-        }
-    }
+    } */
 ?>
 
 
@@ -186,7 +206,7 @@
 
 
 <?php
-    class Util {
+    /*class Util {
         public static function getParams($paramName){
             if(isset($_POST[$paramName])){
                 return $_POST[$paramName];
@@ -221,7 +241,7 @@
             }
             return $var;
         }       
-    }
+    }*/
 ?>
 
 <?php

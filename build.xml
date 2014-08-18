@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<project name="JWSBuild" default="deploy" basedir=".">
+	<property name="src.dir" location="src"/>
+	<property name="web.dir" location="web"/>
+	<property name="class.dir" location="${web.dir}/WEB-INF/classes"/>
+	<path id="build.path">
+	    <fileset dir="web/WEB-INF/lib/" includes="*.jar"/>
+	</path>
+	<property name="jar.file" value="rest.war"/>
+	<property name="catalina.dir" value="c:/tomcat/webapps/"/>
+	
+	
+	<target name='deploy'>
+		<delete dir="${class.dir}" failonerror="true"/>
+		<mkdir dir="${class.dir}"/>
+	  <javac srcdir="${src.dir}" destdir="${class.dir}">
+	  	<classpath refid="build.path"/>
+	  </javac>
+		
+		<war destfile="${jar.file}">
+			<fileset dir="${web.dir}">
+					  <exclude name="**/*.java"/>
+			</fileset>
+	  </war>
+		<copy file="${jar.file}" todir="${catalina.dir}"/>
+	</target>
+	
+</project>
